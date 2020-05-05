@@ -1,0 +1,160 @@
+/////////////////////////////////////////////CWICZENIE NR1,2///////////////////////////////////////////////////////////
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+#include "winbgi2.h"
+#include "rk4.h"
+
+
+double lambda=2.0;
+
+double fun(double t, double y){
+	return lambda*y;
+}
+
+
+double euler(double t0, double y0, double h, double z, double (*fun)(double, double)){
+	double t;
+	double y;
+	t=t0;
+	y=y0;
+	while(t<=z){
+		y=y+h*fun(t,y);
+		t=t+h;
+	}
+	return y;
+
+}
+		
+	int main(){
+    double t0,y0,h,z;
+	double wynik1, wynik2;
+	printf("Wprowadz warunki poczatkowe t0 i y0 oraz h i z(górna granice t):");
+	scanf("%lf",&t0);
+    scanf("%lf",&y0);
+	scanf("%lf",&h);
+	scanf("%lf",&z);
+	wynik1 = euler(t0,y0,h,z,fun);
+	wynik2 = rk4(t0,y0,h,fun);
+	printf("euler=%lf oraz rk4=%lf",wynik1, wynik2);
+	wait();
+	}
+/////////////////////////CWICZENIE NR3/////////////////////////////////////////////
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+#include "winbgi2.h"
+#include "rk4.h"
+
+double lambda=2.0;
+
+double yanalitycznie(double t, double t0, double y0){
+	return y0*exp(t-t0);
+}
+
+double fun(double t, double y){
+	return lambda*y;
+}
+
+
+		
+	int main(){
+    double t0,y0,h,z;
+	printf("Wprowadz warunki poczatkowe t0 i y0 oraz h i z(górna granice t):");
+	scanf("%lf",&t0);
+   	scanf("%lf",&y0);
+	scanf("%lf",&h);
+	scanf("%lf",&z);
+	double t;
+	double y;
+	double eps_e;
+	double eps_rk;
+	double a;
+	double b;
+	t=t0;
+	y=y0;
+	while(t<=z){
+		y=y+h*fun(t,y);
+		t=t+h;
+		eps_e=abs(y-yanalitycznie(t,t0,y0))/abs(yanalitycznie(t,t0,y0));
+		printf("EULER:t=%lf\ty=%lf\teps=%lf\n",t,y,eps_e);
+	}
+	a=t0;
+	b=y0;
+	while(a<=z)
+	{
+		b=rk4(a, b, h, fun);
+		a=a+h;
+		eps_rk=abs(b-yanalitycznie(t,t0,y0))/abs(yanalitycznie(t,t0,y0));
+
+		printf("RK4:t=%lf\ty=%lf\teps=%lf\n", a, b, eps_rk);
+	}
+	wait();
+	}
+////////////////////////////////////CWICZENIE NR4/////////////////////////////////////////
+
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <time.h>
+#include "winbgi2.h"
+#include "rk4.h"
+
+double lambda=2.0;
+
+double yanalitycznie(double t, double t0, double y0){
+	return y0*exp(t-t0);
+}
+
+double fun(double t, double y){
+	return lambda*y;
+}
+
+
+		
+	int main(){
+    double t0,y0,h,z;
+	printf("Wprowadz warunki poczatkowe t0 i y0 oraz z(górna granice t):");
+	scanf("%lf",&t0);
+    scanf("%lf",&y0);
+	scanf("%lf",&z);
+	double t;
+	double y;
+	double eps_e;
+	double eps_rk;
+	double a;
+	double b;
+	double m;
+	z=z-t0;
+	t=t0;
+	y=y0;
+	a=t0;
+	b=y0;
+	FILE *plik;
+	plik=fopen("plik.txt","w");
+	fprintf(plik,"h wynosi:\t m wynosi :\t  bl. EULER wynosi:\t bl RK wynosi:\n");
+	for(int j=0; j<7; j++ ){
+		m=pow(2.,j);
+		h=z/m;
+		
+		for(int i=1; i<=m; i++){
+		y=y+h*fun(t,y);
+		t=t+h;
+		eps_e=abs(y-yanalitycznie(t,t0,y0))/abs(yanalitycznie(t,t0,y0));
+
+		b=rk4(a, b, h, fun);
+		a=a+h;
+		eps_rk=abs(b-yanalitycznie(t,t0,y0))/abs(yanalitycznie(t,t0,y0));
+		if(i==m-1){
+	
+	fprintf(plik,"%.4lf\t\t%.lf\t\t%lf\t%lf\n",h,m,eps_e,eps_rk);
+	
+	}
+		}
+	}
+	fclose(plik);
+	wait();
+	
+	}
